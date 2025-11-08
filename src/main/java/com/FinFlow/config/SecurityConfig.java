@@ -1,6 +1,7 @@
 package com.FinFlow.config;
 
 import com.FinFlow.domain.UserEnum;
+import com.FinFlow.util.CustomResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -38,9 +39,7 @@ public class SecurityConfig {
             // Exception 가로채기
             .exceptionHandling(exception -> exception
                     .authenticationEntryPoint((request, response, authException) -> {
-                      response.setStatus(403);
-                      response.setContentType("application/json;charset=UTF-8");
-                      response.getWriter().println("error");
+                      CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요.");
                     })
             )
 

@@ -1,7 +1,9 @@
 package com.FinFlow.config;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -20,6 +22,7 @@ public class SecurityConfigTest {
   private MockMvc mockMvc;
 
   @Test
+  @DisplayName("서버는 일관성있게 에러가 리턴되어야 한다.")
   public void authentication_test() throws Exception {
     // when
     ResultActions resultActions = mockMvc.perform(get("/api/s/hello"));
@@ -29,6 +32,7 @@ public class SecurityConfigTest {
     System.out.println("test: " + httpStatusCode);
 
     // then
+    assertThat(httpStatusCode).isEqualTo(401);
   }
 
   @Test
@@ -36,7 +40,13 @@ public class SecurityConfigTest {
     // given
 
     // when
+    ResultActions resultActions = mockMvc.perform(get("/api/admin/hello"));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    int httpStatusCode = resultActions.andReturn().getResponse().getStatus();
+    System.out.println("test: " + responseBody);
+    System.out.println("test: " + httpStatusCode);
 
     // then
+    assertThat(httpStatusCode).isEqualTo(401);
   }
 }
