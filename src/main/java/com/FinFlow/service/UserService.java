@@ -1,14 +1,12 @@
 package com.FinFlow.service;
 
 import com.FinFlow.domain.User;
-import com.FinFlow.domain.UserEnum;
+import com.FinFlow.dto.user.UserReqDto.JoinReqDto;
+import com.FinFlow.dto.user.UserRespDto.JoinRespDto;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.UserRepository;
 import java.util.Optional;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,42 +35,5 @@ public class UserService {
 
     // 3. Return the response DTO
     return new JoinRespDto(user);
-  }
-
-  @Setter
-  @Getter
-  @ToString
-  public static class JoinRespDto {
-
-    private Long id;
-    private String username;
-    private String fullname;
-
-    public JoinRespDto(User user) {
-      this.id = user.getId();
-      this.username = user.getUsername();
-      this.fullname = user.getFullname();
-    }
-  }
-
-
-  @Setter
-  @Getter
-  public static class JoinReqDto {
-
-    private String username;
-    private String password;
-    private String email;
-    private String fullname;
-
-    public User toEntity(BCryptPasswordEncoder bCryptPasswordEncoder) {
-      return User.builder()
-              .username(username)
-              .password(bCryptPasswordEncoder.encode(password))
-              .email(email)
-              .fullname(fullname)
-              .role(UserEnum.CUSTOMER)
-              .build();
-    }
   }
 }
