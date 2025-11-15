@@ -39,7 +39,7 @@ public class CustomValidationAdvice {
             errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
           }
 
-          throw new CustomValidationException("유효성 검사 실패", errorMap);
+          throw new CustomValidationException("Validation failed", errorMap);
         }
       }
     }
