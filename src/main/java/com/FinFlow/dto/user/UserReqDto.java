@@ -15,6 +15,13 @@ public class UserReqDto {
   @Getter
   public static class JoinReqDto {
 
+    @Getter
+    @Setter
+    public static class LoginReqDto {
+      private String username;
+      private String password;
+    }
+
     // 영문, 숫자 가능
     @NotEmpty // null or blank space
     @Pattern(regexp = "^[a-zA-Z0-9]{2,20}$", message = "Please enter 2–20 characters using letters or digits.")
