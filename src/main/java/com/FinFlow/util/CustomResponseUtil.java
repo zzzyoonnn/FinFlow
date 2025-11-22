@@ -28,7 +28,7 @@ public class CustomResponseUtil {
       ObjectMapper objectMapper = new ObjectMapper();
       ResponseDTO<?> responseDTO = new ResponseDTO<>(1, "로그인 성공", dto);
       String responseBody = objectMapper.writeValueAsString(responseDTO);
-      response.setStatus(401);
+      response.setStatus(200);
       response.setContentType("application/json;charset=UTF-8");
       response.getWriter().println(responseBody);
 
