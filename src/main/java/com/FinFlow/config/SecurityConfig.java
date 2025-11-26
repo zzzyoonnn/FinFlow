@@ -1,15 +1,19 @@
 package com.FinFlow.config;
 
+import com.FinFlow.config.jwt.JwtAuthenticationFilter;
 import com.FinFlow.domain.UserEnum;
 import com.FinFlow.util.CustomResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -25,9 +29,15 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  @Bean // AuthenticationManager를 명시적으로 빈으로 등록
+  public AuthenticationManager authenticationManager(
+          AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
+  }
+
   // JWT 서버 사용(Session 사용 X)
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
     http
             .headers(headers -> headers.frameOptions(frame -> frame.disable())) // iframe 허용
             .csrf(csrf -> csrf.disable()) // Postman 등 테스트용
@@ -35,6 +45,10 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함
             .formLogin(form -> form.disable()) // React, 앱용
             .httpBasic(basic -> basic.disable()) // 브라우저 인증 팝업 비활성화
+            .addFilterAt(  // 필터 적용
+                    new JwtAuthenticationFilter(authenticationManager),
+                    UsernamePasswordAuthenticationFilter.class
+            )
 
             // Exception 가로채기
             .exceptionHandling(exception -> exception
