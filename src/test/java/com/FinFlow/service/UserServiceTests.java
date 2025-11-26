@@ -6,24 +6,19 @@ import static org.mockito.Mockito.when;
 
 import com.FinFlow.config.dummy.DummyObject;
 import com.FinFlow.domain.User;
-import com.FinFlow.domain.UserEnum;
 import com.FinFlow.dto.user.UserReqDto.JoinReqDto;
 import com.FinFlow.dto.user.UserRespDto.JoinRespDto;
 import com.FinFlow.repository.UserRepository;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-// Spring 관련 Bean들이 하나도 없는 환경
-@AutoConfigureMockMvc   // Mock 환경에 MockMvc가 등록
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTests extends DummyObject {
 
   @InjectMocks
