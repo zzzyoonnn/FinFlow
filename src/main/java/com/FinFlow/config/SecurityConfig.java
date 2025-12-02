@@ -1,6 +1,7 @@
 package com.FinFlow.config;
 
 import com.FinFlow.config.jwt.JwtAuthenticationFilter;
+import com.FinFlow.config.jwt.JwtAuthorizationFilter;
 import com.FinFlow.domain.UserEnum;
 import com.FinFlow.util.CustomResponseUtil;
 import org.slf4j.Logger;
@@ -49,6 +50,8 @@ public class SecurityConfig {
                     new JwtAuthenticationFilter(authenticationManager),
                     UsernamePasswordAuthenticationFilter.class
             )
+            .addFilterAfter(new JwtAuthorizationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+
 
             // Exception 가로채기
             .exceptionHandling(exception -> exception
