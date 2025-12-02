@@ -5,16 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 public class CustomResponseUtil {
   private static final Logger log = LoggerFactory.getLogger(CustomResponseUtil.class);
 
-  public static void unAuthentication(HttpServletResponse response, String message) {
+  public static void fail(HttpServletResponse response, String message, HttpStatus httpStatus) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
       ResponseDTO<?> responseDTO = new ResponseDTO<>(-1, message, null);
       String responseBody = objectMapper.writeValueAsString(responseDTO);
-      response.setStatus(401);
+      response.setStatus(httpStatus.value());
       response.setContentType("application/json;charset=UTF-8");
       response.getWriter().println(responseBody);
 

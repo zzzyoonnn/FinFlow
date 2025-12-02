@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,7 +39,8 @@ public class SecurityConfig {
 
   // JWT 서버 사용(Session 사용 X)
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
+          throws Exception {
     http
             .headers(headers -> headers.frameOptions(frame -> frame.disable())) // iframe 허용
             .csrf(csrf -> csrf.disable()) // Postman 등 테스트용
@@ -50,15 +52,21 @@ public class SecurityConfig {
                     new JwtAuthenticationFilter(authenticationManager),
                     UsernamePasswordAuthenticationFilter.class
             )
-            .addFilterAfter(new JwtAuthorizationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-
+            .addFilterAfter(new JwtAuthorizationFilter(authenticationManager),
+                    UsernamePasswordAuthenticationFilter.class)
 
             // Exception 가로채기
             .exceptionHandling(exception -> exception
                     .authenticationEntryPoint((request, response, authException) -> {
-                      CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요.");
+                      CustomResponseUtil.fail(response, "로그인을 진행해 주세요.", HttpStatus.UNAUTHORIZED);
                     })
             )
+
+            // 권한 실패
+            .exceptionHandling(exception -> exception
+                    .accessDeniedHandler(((request, response, e) -> {
+                      CustomResponseUtil.fail(response, "권한이 없습니다.", HttpStatus.FORBIDDEN);
+                    })))
 
             .authorizeHttpRequests(auth -> auth //권한 설정
                     .requestMatchers("/api/s/**").authenticated()   // 로그인 필요
