@@ -19,7 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 public class JwtAuthenticationFilterTests extends DummyObject {
@@ -33,13 +35,10 @@ public class JwtAuthenticationFilterTests extends DummyObject {
   @Autowired
   private UserRepository userRepository;
 
-  @Test
   @BeforeEach
   public void setUp() throws Exception {
     userRepository.save(newUser("test", "test"));
   }
-
-
 
   @Test
   public void successfulAuthentication_test() throws Exception {
@@ -56,13 +55,34 @@ public class JwtAuthenticationFilterTests extends DummyObject {
             MediaType.APPLICATION_JSON));
     String responseBody = resultActions.andReturn().getResponse().getContentAsString();
     String jwtToken = resultActions.andReturn().getResponse().getHeader(JwtVO.HEADER);
-    System.out.println("test: " + responseBody);
-    System.out.println("test: " + jwtToken);
 
     // then
     resultActions.andExpect(status().isOk());
     assertNotNull(jwtToken);
     assertTrue(jwtToken.startsWith(JwtVO.TOKEN_PREFIX));
     resultActions.andExpect(jsonPath("$.data.username").value("test"));
+  }
+
+  @Test
+  public void unsuccessfulAuthentication_test() throws Exception {
+    // given
+    LoginReqDto loginReqDto = new LoginReqDto();
+    loginReqDto.setUsername("test");
+    loginReqDto.setPassword("12345");
+
+    String requestBody = objectMapper.writeValueAsString(loginReqDto);
+    System.out.println("test: " + requestBody);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(post("/api/login").content(requestBody).contentType(
+            MediaType.APPLICATION_JSON));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    String jwtToken = resultActions.andReturn().getResponse().getHeader(JwtVO.HEADER);
+
+    // then
+    resultActions.andExpect(status().isUnauthorized());
+//    assertNotNull(jwtToken);
+//    assertTrue(jwtToken.startsWith(JwtVO.TOKEN_PREFIX));
+//    resultActions.andExpect(jsonPath("$.data.username").value("test"));
   }
 }
