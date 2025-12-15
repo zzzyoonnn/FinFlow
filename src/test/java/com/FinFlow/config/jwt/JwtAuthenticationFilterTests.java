@@ -81,8 +81,5 @@ public class JwtAuthenticationFilterTests extends DummyObject {
 
     // then
     resultActions.andExpect(status().isUnauthorized());
-//    assertNotNull(jwtToken);
-//    assertTrue(jwtToken.startsWith(JwtVO.TOKEN_PREFIX));
-//    resultActions.andExpect(jsonPath("$.data.username").value("test"));
   }
 }

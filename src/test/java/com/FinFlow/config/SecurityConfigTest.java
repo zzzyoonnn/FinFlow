@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -24,6 +23,8 @@ public class SecurityConfigTest {
   @Test
   @DisplayName("서버는 일관성있게 에러가 리턴되어야 한다.")
   public void authentication_test() throws Exception {
+    // given
+
     // when
     ResultActions resultActions = mockMvc.perform(get("/api/s/hello"));
     String responseBody = resultActions.andReturn().getResponse().getContentAsString();

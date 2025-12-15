@@ -27,7 +27,5 @@ public class UserController {
     JoinRespDto joinRespDto = userService.signUp(joinReqDto);
 
     return new ResponseEntity<>(new ResponseDTO<>(1, "회원가입 성공", joinRespDto), HttpStatus.CREATED);
-    // 201
   }
-
 }

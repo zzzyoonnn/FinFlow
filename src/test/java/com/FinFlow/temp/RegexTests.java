@@ -54,8 +54,6 @@ public class RegexTests {
     System.out.println("테스트: " + result);
   }
 
-  //
-
   @Test
   @DisplayName("Username 테스트")
   public void shouldPassWhenUsernameIsValid() throws Exception {

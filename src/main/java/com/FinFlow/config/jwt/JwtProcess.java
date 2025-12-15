@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 public class JwtProcess {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  // 토큰 생성
   public static String create(LoginUser loginUser) {
     String jwtToken = JWT.create()
             .withSubject("finFlow")

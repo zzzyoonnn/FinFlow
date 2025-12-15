@@ -55,6 +55,5 @@ public class UserServiceTests extends DummyObject {
     // then
     assertThat(joinRespDto.getId()).isEqualTo(1L);
     assertThat(joinRespDto.getUsername()).isEqualTo("test");
-
   }
 }

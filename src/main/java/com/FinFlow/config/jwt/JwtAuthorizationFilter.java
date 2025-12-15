@@ -22,6 +22,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
           throws IOException, ServletException {
     if (isHeaderVerify(request, response)) {
+
       // 토큰 존재
       String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
       LoginUser loginUser = JwtProcess.verify(token);
@@ -43,6 +44,5 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     } else {
       return true;
     }
-
   }
 }
