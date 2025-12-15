@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.FinFlow.config.dummy.DummyObject;
-import com.FinFlow.domain.User;
 import com.FinFlow.dto.user.UserReqDto.JoinReqDto;
 import com.FinFlow.repository.UserRepository;
 import com.FinFlow.service.UserService;
@@ -18,7 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 public class UserControllerTests extends DummyObject {
@@ -36,7 +37,7 @@ public class UserControllerTests extends DummyObject {
 
   @BeforeEach
   public void setUp() throws Exception {
-    dataSetting();
+    userRepository.save(newUser("joinFailTest", "회원가입실패테스트"));
   }
 
   @Test
@@ -79,9 +80,5 @@ public class UserControllerTests extends DummyObject {
 
     // then
     resultActions.andExpect(status().isBadRequest());
-  }
-
-  private void dataSetting() throws Exception {
-    userRepository.save(newUser("joinFailTest", "회원가입실패테스트"));
   }
 }
