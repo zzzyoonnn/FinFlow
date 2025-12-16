@@ -1,5 +1,6 @@
 package com.FinFlow.config.dummy;
 
+import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
 import com.FinFlow.domain.UserEnum;
 import java.time.LocalDateTime;
@@ -30,6 +31,27 @@ public class DummyObject {
             .email(username + "@test.com")
             .fullname(fullname)
             .role(UserEnum.CUSTOMER)
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .build();
+  }
+
+  protected Account newAccount(String number, User user) {
+    return Account.builder()
+            .number(number)
+            .password(1234L)
+            .balance(1000L)
+            .user(user)
+            .build();
+  }
+
+  protected Account newMockAccount(Long id, String number, Long balance, User user) {
+    return Account.builder()
+            .id(id)
+            .number(number)
+            .password(1234L)
+            .balance(balance)
+            .user(user)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();

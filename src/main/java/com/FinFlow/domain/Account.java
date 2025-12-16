@@ -17,7 +17,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -29,11 +28,11 @@ public class Account {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true, nullable = false)
-  private Long number;    // 계좌 번호
+  @Column(unique = true, nullable = false, length = 10)
+  private String number;    // 계좌 번호
 
   @Column(nullable = false, length = 4)
-  private String password;  // 계좌 비밀번호
+  private Long password;  // 계좌 비밀번호
 
   @Column(nullable = false)
   private Long balance;   // 잔액
@@ -54,7 +53,7 @@ public class Account {
   private LocalDateTime createdAt;
 
   @Builder
-  public Account(Long id, Long number, String password, Long balance, boolean isActive, User user, LocalDateTime updatedAt, LocalDateTime createdAt) {
+  public Account(Long id, String number, Long password, Long balance, boolean isActive, User user, LocalDateTime updatedAt, LocalDateTime createdAt) {
     this.id = id;
     this.number = number;
     this.password = password;
