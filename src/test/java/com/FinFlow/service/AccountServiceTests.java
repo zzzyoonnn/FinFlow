@@ -11,7 +11,10 @@ import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
 import com.FinFlow.repository.AccountRepository;
 import com.FinFlow.repository.UserRepository;
+import com.FinFlow.service.AccountService.AccountListRespDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,5 +64,28 @@ public class AccountServiceTests extends DummyObject {
 
     // then
     assertThat(accountSaveRespDto.getNumber()).isEqualTo("1234567890");
+  }
+
+  @Test
+  public void findAccountsByUser_test() throws Exception {
+    // given
+    Long userId = 1L;
+
+    // stub
+    User testUser = newMockUser(userId, "test", "test");
+    when (userRepository.findById(any())).thenReturn(Optional.of(testUser));
+
+    Account testAccount1 = newMockAccount(1L, "1111111111", 1000L, testUser);
+    Account testAccount2 = newMockAccount(2L, "2222222222", 1000L, testUser);
+    List<Account> accountList = Arrays.asList(testAccount1, testAccount2);
+
+    when (accountRepository.findByUserId(any())).thenReturn(accountList);
+
+    // when
+    AccountListRespDTO accountListRespDTO = accountService.findAccountsByUser(userId);
+
+    // then
+    assertThat(accountListRespDTO.getFullname()).isEqualTo("test");
+    assertThat(accountListRespDTO.getAccountList().size()).isEqualTo(2);
   }
 }

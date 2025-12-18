@@ -1,5 +1,6 @@
 package com.FinFlow.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,5 +60,18 @@ public class AccountControllerTests extends DummyObject {
 
     // then
     resultActions.andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithUserDetails(value = "test", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+  public void findUserAccount_test() throws Exception {
+    // given
+
+    // when
+    ResultActions resultActions = mockMvc.perform(get("/api/s/account/loginUser"));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+
+    // then
+    resultActions.andExpect(status().isOk());
   }
 }
