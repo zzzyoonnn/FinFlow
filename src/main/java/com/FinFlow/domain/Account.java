@@ -1,5 +1,6 @@
 package com.FinFlow.domain;
 
+import com.FinFlow.handler.ex.CustomApiException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -62,5 +63,11 @@ public class Account {
     this.user = user;
     this.updatedAt = updatedAt;
     this.createdAt = createdAt;
+  }
+
+  public void checkOwner(Long userId) {
+    if (user.getId() != userId) {
+      throw new CustomApiException("계좌 소유자가 아닙니다.");
+    }
   }
 }

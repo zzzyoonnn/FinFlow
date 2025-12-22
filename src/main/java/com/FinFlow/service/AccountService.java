@@ -3,17 +3,14 @@ package com.FinFlow.service;
 import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
 import com.FinFlow.repository.UserRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,31 +54,17 @@ public class AccountService {
     return new AccountListRespDTO(user, accountList);
   }
 
-  @Getter
-  @Setter
-  public static class AccountListRespDTO {
-    private String fullname;
-    private List<AccountDTO> accountList = new ArrayList<>();
+  @Transactional
+  public void deleteAccount(String number, Long userId) {
+    // 1. Check if the account exists
+    Account account = accountRepository.findByNumber(number).orElseThrow(
+            () -> new CustomApiException("계좌를 찾을 수 없습니다.")
+    );
 
-    public AccountListRespDTO(User user, List<Account> accountList) {
-      this.fullname = user.getFullname();
-      //this.accountList = accountList.stream().map((account) -> new AccountDTO(account)).collect(Collectors.toList()));
-      this.accountList = accountList.stream().map(AccountDTO::new).collect(Collectors.toList());
-      // [account, account, account, ...]
-    }
+    // 2. Verify account ownership
+    account.checkOwner(userId);
 
-    @Getter
-    @Setter
-    public class AccountDTO {
-      private Long id;
-      private String number;
-      private Long balance;
-
-      public AccountDTO(Account account) {
-        this.id = account.getId();
-        this.number = account.getNumber();
-        this.balance = account.getBalance();
-      }
-    }
+    // 3. Delete the account
+    accountRepository.deleteById(account.getId());
   }
 }

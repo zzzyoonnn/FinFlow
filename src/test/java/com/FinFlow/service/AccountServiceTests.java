@@ -1,6 +1,7 @@
 package com.FinFlow.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -8,10 +9,11 @@ import com.FinFlow.config.dummy.DummyObject;
 import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
+import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
 import com.FinFlow.repository.UserRepository;
-import com.FinFlow.service.AccountService.AccountListRespDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +26,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceTests extends DummyObject {
+ public class AccountServiceTests extends DummyObject {
 
   @InjectMocks  // 모든 Mock들이 InjectMocks로 주입됨
   private AccountService accountService;
@@ -87,5 +89,20 @@ public class AccountServiceTests extends DummyObject {
     // then
     assertThat(accountListRespDTO.getFullname()).isEqualTo("test");
     assertThat(accountListRespDTO.getAccountList().size()).isEqualTo(2);
+  }
+
+  @Test
+  public void deleteAccount_test() throws Exception {
+    // given
+    String number = "1234567890";
+    Long userId = 2L;
+
+    // stub
+    User testUser = newMockUser(1L, "test", "test");
+    Account testAccount = newMockAccount(1L, "1234567890", 1000L, testUser);
+    when (accountRepository.findByNumber(any())).thenReturn(Optional.of(testAccount));
+
+    // when & then
+    assertThrows(CustomApiException.class, () -> accountService.deleteAccount(number, userId));
   }
 }
