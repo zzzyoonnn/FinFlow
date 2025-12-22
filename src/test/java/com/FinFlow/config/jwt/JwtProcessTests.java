@@ -10,14 +10,19 @@ import org.junit.jupiter.api.Test;
 
 public class JwtProcessTests {
 
-  @Test
-  public void create_test() throws Exception {
-    // given
+  public String createToken() {
     User user = User.builder().id(1L).role(UserEnum.CUSTOMER).build();
     LoginUser loginUser = new LoginUser(user);
 
-    // when
     String jwtToken = JwtProcess.create(loginUser);
+
+    return jwtToken;
+  }
+
+  @Test
+  public void create_test() throws Exception {
+    // given
+    String jwtToken = createToken();
 
     // then
     assertTrue(jwtToken.startsWith(JwtVO.TOKEN_PREFIX));
@@ -26,7 +31,8 @@ public class JwtProcessTests {
   @Test
   public void verify_test() throws Exception {
     // given
-    String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmaW5GbG93Iiwicm9sZSI6IkNVU1RPTUVSIiwiaWQiOjEsImV4cCI6MTc2NjE1MDU5N30.F07rpqc0mUQZulecr0QPZ9ZbIkeDha2lQPur26FmfXGbNEdCaS58TOkGKp6NoJbtksbA7R57LRH01KfjIOS80A";
+    String token = createToken();
+    String jwtToken = token.replace(JwtVO.TOKEN_PREFIX, "");
 
     // when
     LoginUser loginUser = JwtProcess.verify(jwtToken);
