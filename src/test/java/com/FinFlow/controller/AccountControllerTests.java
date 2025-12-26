@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.FinFlow.config.dummy.DummyObject;
 import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
+import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
@@ -110,5 +111,27 @@ public class AccountControllerTests extends DummyObject {
     assertThrows(CustomApiException.class, () -> accountRepository.findByNumber(number).orElseThrow(
             () -> new CustomApiException("계좌를 찾을 수 없습니다.")
     ));
+  }
+
+  @Test
+  public void depositAccount_test() throws Exception {
+    // given
+    AccountDepositReqDTO accountDepositReqDTO = new AccountDepositReqDTO();
+    accountDepositReqDTO.setNumber("1111111111");
+    accountDepositReqDTO.setAmount(500L);
+    accountDepositReqDTO.setTransactionType("DEPOSIT");
+    accountDepositReqDTO.setTel("010-1111-1111");
+
+    String requestBody = objectMapper.writeValueAsString(accountDepositReqDTO);
+    System.out.println(requestBody);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(post("/api/account/deposit").content(requestBody).contentType(
+            MediaType.APPLICATION_JSON));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    System.out.println(responseBody);
+
+    // then
+    resultActions.andExpect(status().isCreated());
   }
 }

@@ -1,5 +1,7 @@
 package com.FinFlow.temp;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,5 +78,26 @@ public class RegexTests {
     String value = "test@test.com";
     boolean result = Pattern.matches("^[a-zA-Z0-9]+@[a-zA-Z0-9]{2,4}\\.[a-zA-Z]{2,3}$", value);
     System.out.println("테스트: " + result);
+  }
+
+  @Test
+  @DisplayName("TransactionType test")
+  public void transactionType_test1() throws Exception {
+    String type = "DEPOSIT";
+    assertTrue(Pattern.matches("^(DEPOSIT)$", type));
+  }
+
+  @Test
+  @DisplayName("TransactionType test")
+  public void transactionType_test2() throws Exception {
+    String type = "TRANSFER";
+    assertTrue(Pattern.matches("^(DEPOSIT|TRANSFER)$", type));
+  }
+
+  @Test
+  @DisplayName("AccountTel test")
+  public void accountTel_test() throws Exception {
+    String tel = "010-1234-5678";
+    assertTrue(Pattern.matches("^[0-9]{3}-[0-9]{4}-[0-9]{4}", tel));
   }
 }

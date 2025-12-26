@@ -1,12 +1,17 @@
 package com.FinFlow.service;
 
 import com.FinFlow.domain.Account;
+import com.FinFlow.domain.Transaction;
+import com.FinFlow.domain.TransactionEnum;
 import com.FinFlow.domain.User;
+import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
+import com.FinFlow.repository.TransactionRepository;
 import com.FinFlow.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +26,7 @@ public class AccountService {
 
   private final UserRepository userRepository;
   private final AccountRepository accountRepository;
+  private final TransactionRepository transactionRepository;
 
   @Transactional
   public AccountSaveRespDto registerAccount(AccountSaveReqDto accountSaveReqDto, Long userId) {
@@ -66,5 +72,36 @@ public class AccountService {
 
     // 3. Delete the account
     accountRepository.deleteById(account.getId());
+  }
+
+  @Transactional
+  public AccountDepositRespDTO depositAccount(AccountDepositReqDTO accountDepositReqDTO) {
+    // Check for zero amount
+    if (accountDepositReqDTO.getAmount() <= 0L) {
+      throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+    }
+
+    // Validate deposit account
+    Account depositAccount = accountRepository.findByNumber(accountDepositReqDTO.getNumber()).orElseThrow(
+            () -> new CustomApiException("계좌를 찾을 수 없습니다.")
+    );
+
+    // Deposit funds
+    depositAccount.deposit(accountDepositReqDTO.getAmount());
+
+    // Record transaction history
+    Transaction transaction = Transaction.builder()
+            .depositAccount(depositAccount)
+            .withdrawAccount(null)
+            .depositAccountBalance(depositAccount.getBalance())
+            .amount(accountDepositReqDTO.getAmount())
+            .transaction_type(TransactionEnum.DEPOSIT)
+            .sender("ATM")
+            .receiver(accountDepositReqDTO.getNumber() + "")
+            .tel(accountDepositReqDTO.getTel())
+            .build();
+
+    Transaction saveTransaction = transactionRepository.save(transaction);
+    return new AccountDepositRespDTO(depositAccount, saveTransaction);
   }
 }

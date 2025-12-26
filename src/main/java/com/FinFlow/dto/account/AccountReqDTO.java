@@ -2,8 +2,10 @@ package com.FinFlow.dto.account;
 
 import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -33,5 +35,25 @@ public class AccountReqDTO {
               .user(user)
               .build();
     }
+  }
+
+  @Getter
+  @Setter
+  public static class AccountDepositReqDTO {
+
+    @NotNull
+    @Column(unique = true, nullable = false, length = 10)
+    private String number;
+
+    @NotNull
+    private Long amount;
+
+    @NotEmpty
+    @Pattern(regexp = "^(DEPOSIT)$")
+    private String transactionType;
+
+    @NotEmpty
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{4}-[0-9]{4}")
+    private String tel;
   }
 }

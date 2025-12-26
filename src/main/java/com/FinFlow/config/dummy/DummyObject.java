@@ -1,6 +1,8 @@
 package com.FinFlow.config.dummy;
 
 import com.FinFlow.domain.Account;
+import com.FinFlow.domain.Transaction;
+import com.FinFlow.domain.TransactionEnum;
 import com.FinFlow.domain.User;
 import com.FinFlow.domain.UserEnum;
 import java.time.LocalDateTime;
@@ -55,5 +57,26 @@ public class DummyObject {
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();
+  }
+
+  protected Transaction newMockDepositTransaction(Long id, Account account) {
+    account.deposit(500L);
+
+    Transaction transaction = Transaction.builder()
+            .id(id)
+            .withdrawAccount(null)
+            .depositAccount(account)
+            .withdrawAccountBalance(null)
+            .depositAccountBalance(account.getBalance())
+            .amount(500L)
+            .transaction_type(TransactionEnum.DEPOSIT)
+            .sender("ATM")
+            .receiver(account.getNumber() + "")
+            .tel("010-1111-1111")
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .build();
+
+    return transaction;
   }
 }

@@ -2,7 +2,9 @@ package com.FinFlow.controller;
 
 import com.FinFlow.config.auth.LoginUser;
 import com.FinFlow.dto.ResponseDTO;
+import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
 import com.FinFlow.service.AccountService;
@@ -48,5 +50,12 @@ public class AccountController {
     accountService.deleteAccount(number, loginUser.getUser().getId());
 
     return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
+  }
+
+  @PostMapping("/account/deposit")
+  public ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDTO accountDepositReqDTO, BindingResult bindingResult) {
+    AccountDepositRespDTO accountDepositRespDTO = accountService.depositAccount(accountDepositReqDTO);
+
+    return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 입금 완료", accountDepositRespDTO), HttpStatus.CREATED);
   }
 }
