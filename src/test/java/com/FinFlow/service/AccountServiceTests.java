@@ -187,6 +187,32 @@ import org.mockito.junit.jupiter.MockitoExtension;
   }
 
   // 계좌 출금_테스트(서비스)
+  @Test
+  public void withdrawAccount_test() throws Exception {
+    // given
+    Long amount = 500L;
+    Long password = 1234L;
+    Long userId = 1L;
+
+
+    // stub
+    User testUser = newMockUser(1L, "test", "test");// 실행
+    Account testAccount = newMockAccount(1L, "1111111111", 1000L, testUser);
+
+    // when
+    if (amount <= 0L) {
+      throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+    }
+
+    testAccount.checkOwner(userId);
+    testAccount.checkSamePassword(password);
+//    testAccount.checkBalance(amount);
+    testAccount.withdraw(amount);
+
+    // then
+    assertThat(testAccount.getBalance()).isEqualTo(500L);
+  }
+
   // 계좌 이체_테스트(서비스)
   // 계좌목록보기_유저별_테스트(서비스)
   // 계좌상세보기_테스트(서비스)

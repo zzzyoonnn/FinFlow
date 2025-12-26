@@ -14,6 +14,7 @@ import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
 import com.FinFlow.repository.UserRepository;
+import com.FinFlow.service.AccountService.AccountWithdrawReqDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,5 +134,27 @@ public class AccountControllerTests extends DummyObject {
 
     // then
     resultActions.andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithUserDetails(value = "test", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+  public void withdrawAccount_test() throws Exception {
+    // given
+    AccountWithdrawReqDTO accountWithdrawReqDTO = new AccountWithdrawReqDTO();
+    accountWithdrawReqDTO.setNumber("1111111111");
+    accountWithdrawReqDTO.setPassword(1234L);
+    accountWithdrawReqDTO.setAmount(500L);
+    accountWithdrawReqDTO.setTransactionType("WITHDRAW");
+
+    String requestBody = objectMapper.writeValueAsString(accountWithdrawReqDTO);
+    System.out.println(requestBody);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(post("/api/s/account/withdraw").content(requestBody).contentType(
+            MediaType.APPLICATION_JSON));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    System.out.println(responseBody);
+
+    // then
   }
 }

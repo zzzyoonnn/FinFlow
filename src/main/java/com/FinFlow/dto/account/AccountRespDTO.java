@@ -95,4 +95,44 @@ public class AccountRespDTO {
       }
     }
   }
+
+  // DTO가 똑같아도 재사용 X
+  // 나중에 출금할 때 DTO가 조금 달라져야 한다면 DTO를 공유하는 모든 메서드에 영향감
+  // 독립적으로 만들기
+  @Getter
+  @Setter
+  public static class AccountWithdrawRespDTO {
+    private Long id;
+    private String number;
+    private Long balance;
+    private TransactionDTO transaction;
+
+    public AccountWithdrawRespDTO(Account account, Transaction transaction) {
+      this.id = account.getId();
+      this.number = account.getNumber();
+      this.balance = account.getBalance();
+      this.transaction = new TransactionDTO(transaction);
+    }
+
+    @Getter
+    @Setter
+    public class TransactionDTO {
+      private Long id;
+      private String transactionType;
+      private String sender;
+      private String receiver;
+      private Long amount;
+      private String createdAt;
+
+
+      public TransactionDTO(Transaction transaction) {
+        this.id = transaction.getId();
+        this.transactionType = transaction.getTransaction_type().getValue();
+        this.sender = transaction.getSender();
+        this.receiver = transaction.getReceiver();
+        this.amount = transaction.getAmount();
+        this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
+      }
+    }
+  }
 }

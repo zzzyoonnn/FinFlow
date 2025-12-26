@@ -9,13 +9,21 @@ import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountWithdrawRespDTO;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
 import com.FinFlow.repository.TransactionRepository;
 import com.FinFlow.repository.UserRepository;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +110,70 @@ public class AccountService {
             .build();
 
     Transaction saveTransaction = transactionRepository.save(transaction);
+
+    // Return DTO response
     return new AccountDepositRespDTO(depositAccount, saveTransaction);
+  }
+
+  @Transactional
+  public AccountWithdrawRespDTO withdrawAccount(AccountWithdrawReqDTO accountWithdrawReqDTO, Long userId) {
+    // Check for zero amount
+    if (accountWithdrawReqDTO.getAmount() <= 0L) {
+      throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+    }
+
+    // Validate withdraw account(repository)
+    Account withdrawAccount = accountRepository.findByNumber(accountWithdrawReqDTO.getNumber()).orElseThrow(
+            () -> new CustomApiException("계좌를 찾을 수 없습니다.")
+    );
+
+    // Verify withdraw account ownership(matches the logged-in user)
+    withdrawAccount.checkOwner(userId);
+
+    // Verify withdraw account password
+    withdrawAccount.checkSamePassword(accountWithdrawReqDTO.getPassword());
+
+    // Check withdraw account balance
+    withdrawAccount.checkBalance(accountWithdrawReqDTO.getAmount());
+
+    // Withdraw amount
+    withdrawAccount.withdraw(accountWithdrawReqDTO.getAmount());
+
+    // Record transaction history(repository)
+    Transaction transaction = Transaction.builder()
+            .withdrawAccount(withdrawAccount)
+            .depositAccount(null)
+            .withdrawAccountBalance(withdrawAccount.getBalance())
+            .depositAccountBalance(null)
+            .amount(accountWithdrawReqDTO.getAmount())
+            .transaction_type(TransactionEnum.WITHDRAW)
+            .sender(accountWithdrawReqDTO.getNumber() + "")
+            .receiver("ATM")
+            .build();
+
+    Transaction saveTransaction = transactionRepository.save(transaction);
+
+    // Return DTO response
+    return new AccountWithdrawRespDTO(withdrawAccount, saveTransaction);
+  }
+
+  @Getter
+  @Setter
+  public static class AccountWithdrawReqDTO {
+
+    @NotNull
+    @Column(unique = true, nullable = false, length = 10)
+    private String number;
+
+    @NotNull
+    @Digits(integer = 4, fraction = 4)
+    private Long password;
+
+    @NotNull
+    private Long amount;
+
+    @NotEmpty
+    @Pattern(regexp = "^(WITHDRAW)$")
+    private String transactionType;
   }
 }

@@ -7,7 +7,9 @@ import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountWithdrawRespDTO;
 import com.FinFlow.service.AccountService;
+import com.FinFlow.service.AccountService.AccountWithdrawReqDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,5 +59,12 @@ public class AccountController {
     AccountDepositRespDTO accountDepositRespDTO = accountService.depositAccount(accountDepositReqDTO);
 
     return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 입금 완료", accountDepositRespDTO), HttpStatus.CREATED);
+  }
+
+  @PostMapping("/s/account/withdraw")
+  public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDTO accountWithdrawReqDTO, BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
+    AccountWithdrawRespDTO accountWithdrawRespDTO = accountService.withdrawAccount(accountWithdrawReqDTO, loginUser.getUser().getId());
+
+    return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 출금 완료", accountWithdrawRespDTO), HttpStatus.CREATED);
   }
 }
