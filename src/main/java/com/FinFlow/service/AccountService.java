@@ -6,6 +6,7 @@ import com.FinFlow.domain.TransactionEnum;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountReqDTO.AccountWithdrawReqDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
@@ -155,25 +156,5 @@ public class AccountService {
 
     // Return DTO response
     return new AccountWithdrawRespDTO(withdrawAccount, saveTransaction);
-  }
-
-  @Getter
-  @Setter
-  public static class AccountWithdrawReqDTO {
-
-    @NotNull
-    @Column(unique = true, nullable = false, length = 10)
-    private String number;
-
-    @NotNull
-    @Digits(integer = 4, fraction = 4)
-    private Long password;
-
-    @NotNull
-    private Long amount;
-
-    @NotEmpty
-    @Pattern(regexp = "^(WITHDRAW)$")
-    private String transactionType;
   }
 }

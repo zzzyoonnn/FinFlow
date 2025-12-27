@@ -56,4 +56,24 @@ public class AccountReqDTO {
     @Pattern(regexp = "^[0-9]{3}-[0-9]{4}-[0-9]{4}")
     private String tel;
   }
+
+  @Getter
+  @Setter
+  public static class AccountWithdrawReqDTO {
+
+    @NotNull
+    @Column(unique = true, nullable = false, length = 10)
+    private String number;
+
+    @NotNull
+    @Digits(integer = 4, fraction = 4)
+    private Long password;
+
+    @NotNull
+    private Long amount;
+
+    @NotEmpty
+    @Pattern(regexp = "^(WITHDRAW)$")
+    private String transactionType;
+  }
 }
