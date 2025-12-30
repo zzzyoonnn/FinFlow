@@ -11,6 +11,7 @@ import com.FinFlow.domain.Transaction;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountReqDTO.AccountTransferReqDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
@@ -194,7 +195,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
     Long password = 1234L;
     Long userId = 1L;
 
-
     // stub
     User testUser = newMockUser(1L, "test", "test");// 실행
     Account testAccount = newMockAccount(1L, "1111111111", 1000L, testUser);
@@ -214,6 +214,50 @@ import org.mockito.junit.jupiter.MockitoExtension;
   }
 
   // 계좌 이체_테스트(서비스)
+  @Test
+  public void transferAccount_test() throws Exception {
+    // given
+    Long userId = 1L;
+    AccountTransferReqDTO accountTransferReqDTO = new AccountTransferReqDTO();
+    accountTransferReqDTO.setWithdrawNumber("1111111111");
+    accountTransferReqDTO.setDepositNumber("2222222222");
+    accountTransferReqDTO.setWithdrawPassword(1234L);
+    accountTransferReqDTO.setAmount(500L);
+    accountTransferReqDTO.setTransactionType("TRANSFER");
+
+    // stub
+    User testUser = newMockUser(1L, "test", "test");
+    User testUser2 = newMockUser(2L, "test2", "test2");
+    Account withdrawAccount = newMockAccount(1L, "1111111111", 1000L, testUser);
+    Account depositAccount = newMockAccount(2L, "2222222222", 1000L, testUser2);
+
+    // when
+    if (accountTransferReqDTO.getWithdrawNumber().equals(accountTransferReqDTO.getDepositNumber())) {
+      throw new CustomApiException("입출금계좌가 동일할 수 없습니다.");
+    }
+
+    if (accountTransferReqDTO.getAmount() <= 0L) {
+      throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+    }
+
+    // Verify withdraw account ownership(matches the logged-in user)
+    withdrawAccount.checkOwner(userId);
+
+    // Verify withdraw account password
+    withdrawAccount.checkSamePassword(accountTransferReqDTO.getWithdrawPassword());
+
+    // Check withdraw account balance
+    withdrawAccount.checkBalance(accountTransferReqDTO.getAmount());
+
+    // Transfer funds
+    withdrawAccount.withdraw(accountTransferReqDTO.getAmount());
+    depositAccount.deposit(accountTransferReqDTO.getAmount());
+
+    // then
+    assertThat(withdrawAccount.getBalance()).isEqualTo(500L);
+    assertThat(depositAccount.getBalance()).isEqualTo(1500L);
+  }
+
   // 계좌목록보기_유저별_테스트(서비스)
   // 계좌상세보기_테스트(서비스)
   // 대부분 컨트롤러에서 테스트 가능. 정말 필요한 테스트일까?

@@ -76,4 +76,28 @@ public class AccountReqDTO {
     @Pattern(regexp = "^(WITHDRAW)$")
     private String transactionType;
   }
+
+  @Getter
+  @Setter
+  public static class AccountTransferReqDTO {
+
+    @NotNull
+    @Column(unique = true, nullable = false, length = 10)
+    private String withdrawNumber;
+
+    @NotNull
+    @Column(unique = true, nullable = false, length = 10)
+    private String depositNumber;
+
+    @NotNull
+    @Digits(integer = 4, fraction = 4)
+    private Long withdrawPassword;
+
+    @NotNull
+    private Long amount;
+
+    @NotEmpty
+    @Pattern(regexp = "^(TRANSFER)$")
+    private String transactionType;
+  }
 }

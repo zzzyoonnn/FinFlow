@@ -2,12 +2,14 @@ package com.FinFlow.controller;
 
 import com.FinFlow.config.auth.LoginUser;
 import com.FinFlow.dto.ResponseDTO;
+import com.FinFlow.dto.account.AccountReqDTO.AccountTransferReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
 import com.FinFlow.dto.account.AccountReqDTO.AccountWithdrawReqDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountTransferRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountWithdrawRespDTO;
 import com.FinFlow.service.AccountService;
 import jakarta.validation.Valid;
@@ -66,5 +68,12 @@ public class AccountController {
     AccountWithdrawRespDTO accountWithdrawRespDTO = accountService.withdrawAccount(accountWithdrawReqDTO, loginUser.getUser().getId());
 
     return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 출금 완료", accountWithdrawRespDTO), HttpStatus.CREATED);
+  }
+
+  @PostMapping("/s/account/transfer")
+  public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountTransferReqDTO accountTransferReqDTO, BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
+    AccountTransferRespDTO accountTransferRespDTO = accountService.transferAccount(accountTransferReqDTO, loginUser.getUser().getId());
+
+    return new ResponseEntity<>(new ResponseDTO<>(1, "계좌 이체 완료", accountTransferRespDTO), HttpStatus.CREATED);
   }
 }

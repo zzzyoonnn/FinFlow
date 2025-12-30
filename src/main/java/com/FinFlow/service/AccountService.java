@@ -6,10 +6,12 @@ import com.FinFlow.domain.TransactionEnum;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountReqDTO.AccountTransferReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountWithdrawReqDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountDepositRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountListRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountSaveRespDto;
+import com.FinFlow.dto.account.AccountRespDTO.AccountTransferRespDTO;
 import com.FinFlow.dto.account.AccountRespDTO.AccountWithdrawRespDTO;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.catalina.util.CustomObjectInputStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,7 +140,7 @@ public class AccountService {
     // Check withdraw account balance
     withdrawAccount.checkBalance(accountWithdrawReqDTO.getAmount());
 
-    // Withdraw amount
+    // Withdraw funds
     withdrawAccount.withdraw(accountWithdrawReqDTO.getAmount());
 
     // Record transaction history(repository)
@@ -156,5 +159,58 @@ public class AccountService {
 
     // Return DTO response
     return new AccountWithdrawRespDTO(withdrawAccount, saveTransaction);
+  }
+
+  @Transactional
+  public AccountTransferRespDTO transferAccount(AccountTransferReqDTO accountTransferReqDTO, Long userId) {
+    // Validate that withdraw and deposit accounts are different
+    if (accountTransferReqDTO.getWithdrawNumber().equals(accountTransferReqDTO.getDepositNumber())) {
+      throw new CustomApiException("입출금계좌가 동일할 수 없습니다.");
+    }
+
+    // Check for zero amount
+    if (accountTransferReqDTO.getAmount() <= 0L) {
+      throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+    }
+
+    // Validate withdraw account(repository)
+    Account withdrawAccount = accountRepository.findByNumber(accountTransferReqDTO.getWithdrawNumber()).orElseThrow(
+            () -> new CustomApiException("출금 계좌를 찾을 수 없습니다.")
+    );
+
+    // Validate deposit account(repository)
+    Account depositAccount = accountRepository.findByNumber(accountTransferReqDTO.getDepositNumber()).orElseThrow(
+            () -> new CustomApiException("입금 계좌를 찾을 수 없습니다.")
+    );
+
+    // Verify withdraw account ownership(matches the logged-in user)
+    withdrawAccount.checkOwner(userId);
+
+    // Verify withdraw account password
+    withdrawAccount.checkSamePassword(accountTransferReqDTO.getWithdrawPassword());
+
+    // Check withdraw account balance
+    withdrawAccount.checkBalance(accountTransferReqDTO.getAmount());
+
+    // Transfer funds
+    withdrawAccount.withdraw(accountTransferReqDTO.getAmount());
+    depositAccount.deposit(accountTransferReqDTO.getAmount());
+
+    // Record transaction history(repository)
+    Transaction transaction = Transaction.builder()
+            .withdrawAccount(withdrawAccount)
+            .depositAccount(depositAccount)
+            .withdrawAccountBalance(withdrawAccount.getBalance())
+            .depositAccountBalance(depositAccount.getBalance())
+            .amount(accountTransferReqDTO.getAmount())
+            .transaction_type(TransactionEnum.TRANSFER)
+            .sender(accountTransferReqDTO.getWithdrawNumber() + "")
+            .receiver(accountTransferReqDTO.getDepositNumber() + "")
+            .build();
+
+    Transaction saveTransaction = transactionRepository.save(transaction);
+
+    // Return DTO response
+    return new AccountTransferRespDTO(withdrawAccount, saveTransaction);
   }
 }

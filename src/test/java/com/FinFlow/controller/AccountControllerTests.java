@@ -11,6 +11,7 @@ import com.FinFlow.domain.Account;
 import com.FinFlow.domain.User;
 import com.FinFlow.dto.account.AccountReqDTO.AccountDepositReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountSaveReqDto;
+import com.FinFlow.dto.account.AccountReqDTO.AccountTransferReqDTO;
 import com.FinFlow.dto.account.AccountReqDTO.AccountWithdrawReqDTO;
 import com.FinFlow.handler.ex.CustomApiException;
 import com.FinFlow.repository.AccountRepository;
@@ -156,5 +157,30 @@ public class AccountControllerTests extends DummyObject {
     System.out.println(responseBody);
 
     // then
+    resultActions.andExpect(status().isCreated());
+  }
+
+  @Test
+  @WithUserDetails(value = "test", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+  public void transferAccount_test() throws Exception {
+    // given
+    AccountTransferReqDTO accountTransferReqDTO = new AccountTransferReqDTO();
+    accountTransferReqDTO.setWithdrawNumber("1111111111");
+    accountTransferReqDTO.setDepositNumber("2222222222");
+    accountTransferReqDTO.setWithdrawPassword(1234L);
+    accountTransferReqDTO.setAmount(500L);
+    accountTransferReqDTO.setTransactionType("TRANSFER");
+
+    String requestBody = objectMapper.writeValueAsString(accountTransferReqDTO);
+    System.out.println(requestBody);
+
+    // when
+    ResultActions resultActions = mockMvc.perform(post("/api/s/account/transfer").content(requestBody).contentType(
+            MediaType.APPLICATION_JSON));
+    String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+    System.out.println(responseBody);
+
+    // then
+    resultActions.andExpect(status().isCreated());
   }
 }
