@@ -81,9 +81,17 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
+    // Origin
     configuration.addAllowedMethod("*");        // 모든 HTTP 메서드 허용
+
+    // Method
     configuration.addAllowedOriginPattern("*"); // 모든 도메인 허용
+
+    // Header
     configuration.addAllowedHeader("*");        // 모든 헤더 허용
+    configuration.addExposedHeader("Authorization");
+
+    // Credentials
     configuration.setAllowCredentials(true);    // 쿠키/인증정보 허용
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
