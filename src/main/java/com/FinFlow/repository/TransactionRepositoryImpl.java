@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 
 interface DAO {
-  List<Transaction> findTransactionList(@Param("accoundId") Long accoundId, @Param("transaction_type") String transaction_type, @Param("page") Integer page);
+  List<Transaction> findTransactionList(@Param("accountId") Long accountId, @Param("transaction_type") String transaction_type, @Param("page") Integer page);
 }
 
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class TransactionRepositoryImpl implements DAO {
   private final EntityManager em;
 
   @Override
-  public List<Transaction> findTransactionList(Long accoundId, String transaction_type, Integer page) {
+  public List<Transaction> findTransactionList(Long accountId, String transaction_type, Integer page) {
     // 동적 쿼리 (transaction_type 값을 가지고 동적 쿼리 = DEPOSIT, WITHDRAW, ALL)
 
     // JPQL
@@ -30,7 +30,7 @@ public class TransactionRepositoryImpl implements DAO {
       sql += "where t.withdrawAccount.id = :withdrawAccountId ";
     } else if (transaction_type.equals("DEPOSIT")) {
       sql += "join fetch t.depositAccount da ";
-      sql += "where da.depositAccount.id = :depositAccountId ";
+      sql += "where t.depositAccount.id = :depositAccountId ";
     } else {
       sql += "left join fetch t.withdrawAccount wa ";
       sql += "left join fetch t.depositAccount da ";
@@ -42,12 +42,12 @@ public class TransactionRepositoryImpl implements DAO {
     TypedQuery<Transaction> query = em.createQuery(sql, Transaction.class);
 
     if (transaction_type.equals("WITHDRAW")) {
-      query = query.setParameter("withdrawAccountId", accoundId);
+      query = query.setParameter("withdrawAccountId", accountId);
     } else if (transaction_type.equals("DEPOSIT")) {
-      query = query.setParameter("depositAccount", accoundId);
+      query = query.setParameter("depositAccountId", accountId);
     } else {
-      query = query.setParameter("withdrawAccountId", accoundId);
-      query = query.setParameter("depositAccount", accoundId);
+      query = query.setParameter("withdrawAccountId", accountId);
+      query = query.setParameter("depositAccountId", accountId);
     }
 
     query.setFirstResult(page * 5);
