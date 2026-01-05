@@ -5,6 +5,7 @@ import com.FinFlow.domain.Transaction;
 import com.FinFlow.domain.TransactionEnum;
 import com.FinFlow.domain.User;
 import com.FinFlow.domain.UserEnum;
+import com.FinFlow.repository.AccountRepository;
 import java.time.LocalDateTime;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -75,6 +76,74 @@ public class DummyObject {
             .tel("010-1111-1111")
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
+            .build();
+
+    return transaction;
+  }
+
+  protected Transaction newDepositTransaction(Account account, AccountRepository accountRepository) {
+    account.deposit(100L);
+
+    // 더티체킹이 안됨
+    if (accountRepository != null) {
+      accountRepository.save(account);
+    }
+
+    Transaction transaction = Transaction.builder()
+            .withdrawAccount(null)
+            .depositAccount(account)
+            .withdrawAccountBalance(null)
+            .depositAccountBalance(account.getBalance())
+            .amount(100L)
+            .transaction_type(TransactionEnum.DEPOSIT)
+            .sender("ATM")
+            .receiver(account.getNumber() + "")
+            .tel("01012345678")
+            .build();
+
+    return transaction;
+  }
+
+  protected Transaction newWithdrawTransaction(Account account, AccountRepository accountRepository) {
+    account.withdraw(100L);
+
+    // 더티체킹이 안됨
+    if (accountRepository != null) {
+      accountRepository.save(account);
+    }
+
+    Transaction transaction = Transaction.builder()
+            .withdrawAccount(account)
+            .depositAccount(null)
+            .withdrawAccountBalance(account.getBalance())
+            .depositAccountBalance(null)
+            .amount(100L)
+            .transaction_type(TransactionEnum.WITHDRAW)
+            .sender(account.getNumber() + "")
+            .receiver("ATM")
+            .build();
+
+    return transaction;
+  }
+  protected Transaction newTransferTransaction(Account withdrawAccount, Account depositAccount, AccountRepository accountRepository) {
+    withdrawAccount.withdraw(100L);
+    depositAccount.deposit(100L);
+
+    // 더티체킹이 안됨
+    if (accountRepository != null) {
+      accountRepository.save(withdrawAccount);
+      accountRepository.save(depositAccount);
+    }
+
+    Transaction transaction = Transaction.builder()
+            .withdrawAccount(withdrawAccount)
+            .depositAccount(depositAccount)
+            .withdrawAccountBalance(withdrawAccount.getBalance())
+            .depositAccountBalance(depositAccount.getBalance())
+            .amount(100L)
+            .transaction_type(TransactionEnum.TRANSFER)
+            .sender(withdrawAccount.getNumber() + "")
+            .receiver(depositAccount.getNumber() + "")
             .build();
 
     return transaction;
