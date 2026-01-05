@@ -1,5 +1,7 @@
 package com.FinFlow.domain.transaction;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.FinFlow.config.dummy.DummyObject;
 import com.FinFlow.domain.Account;
 import com.FinFlow.domain.Transaction;
@@ -35,6 +37,13 @@ public class TransactionRepositoryImplTests extends DummyObject {
   public void setUp() {
     autoIncrementReset();
     dataSetting();
+    entityManager.clear();
+  }
+
+  private void autoIncrementReset() {
+    entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1;").executeUpdate();
+    entityManager.createNativeQuery("ALTER TABLE account ALTER COLUMN id RESTART WITH 1;").executeUpdate();
+    entityManager.createNativeQuery("ALTER TABLE account_transaction ALTER COLUMN id RESTART WITH 1;").executeUpdate();
   }
 
   private void dataSetting() {
@@ -60,33 +69,114 @@ public class TransactionRepositoryImplTests extends DummyObject {
             .save(newTransferTransaction(bobAccount, alicesAccount, accountRepository));
   }
 
-@Test
-public void dataJpa_test1() {
-  List<Transaction> transactionList = transactionRepository.findAll();
-  transactionList.forEach(transaction -> {
-    System.out.println("No." + transaction.getId());
-    System.out.println("fromAccount: " + transaction.getSender());
-    System.out.println("toAccount: " + transaction.getReceiver());
-    System.out.println("Type: " + transaction.getTransaction_type());
-    System.out.println("-------------------------------");
-  });
-}
+  @Test
+  public void dataJpa_test1() {
+    List<Transaction> transactionList = transactionRepository.findAll();
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("-------------------------------");
+    });
+  }
 
-@Test
-public void dataJpa_test2() {
-  List<Transaction> transactionList = transactionRepository.findAll();
-  transactionList.forEach(transaction -> {
-    System.out.println("No." + transaction.getId());
-    System.out.println("fromAccount: " + transaction.getSender());
-    System.out.println("toAccount: " + transaction.getReceiver());
-    System.out.println("Type: " + transaction.getTransaction_type());
-    System.out.println("-------------------------------");
-  });
-}
+  @Test
+  public void dataJpa_test2() {
+    List<Transaction> transactionList = transactionRepository.findAll();
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("-------------------------------");
+    });
+  }
 
-  private void autoIncrementReset() {
-    entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN id RESTART WITH 1;").executeUpdate();
-    entityManager.createNativeQuery("ALTER TABLE account ALTER COLUMN id RESTART WITH 1;").executeUpdate();
-    entityManager.createNativeQuery("ALTER TABLE account_transaction ALTER COLUMN id RESTART WITH 1;").executeUpdate();
+
+  @Test
+  public void findTransactionList_all_test() throws Exception {
+    // given
+    Long accountId = 1L;
+
+    // when
+    List<Transaction> transactionList = transactionRepository.findTransactionList(accountId, "ALL", 0);
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("amount: " + transaction.getAmount());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("depositBalance: " + transaction.getDepositAccountBalance());
+      System.out.println("withdrawBalance: " + transaction.getWithdrawAccountBalance());
+      System.out.println("------------------------------");
+    });
+
+    // then
+    assertThat(transactionList.get(3).getDepositAccountBalance()).isEqualTo(800L);
+  }
+
+  @Test
+  public void findTransactionList_withdraw_test() throws Exception {
+    // given
+    Long accountId = 1L;
+
+    // when
+    List<Transaction> transactionList = transactionRepository.findTransactionList(accountId, "WITHDRAW", 0);
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("amount: " + transaction.getAmount());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("depositBalance: " + transaction.getDepositAccountBalance());
+      System.out.println("withdrawBalance: " + transaction.getWithdrawAccountBalance());
+      System.out.println("------------------------------");
+    });
+
+    // then
+  }
+
+  @Test
+  public void findTransactionList_deposit_test() throws Exception {
+    // given
+    Long accountId = 1L;
+
+    // when
+    List<Transaction> transactionList = transactionRepository.findTransactionList(accountId, "DEPOSIT", 0);
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("amount: " + transaction.getAmount());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("depositBalance: " + transaction.getDepositAccountBalance());
+      System.out.println("withdrawBalance: " + transaction.getWithdrawAccountBalance());
+      System.out.println("------------------------------");
+    });
+
+    // then
+  }
+
+  @Test
+  public void findTransactionList_fetchJoin_test() throws Exception {
+    // given
+    Long accountId = 2L;
+
+    // when
+    List<Transaction> transactionList = transactionRepository.findTransactionList(accountId, "WITHDRAW", 0);
+    transactionList.forEach(transaction -> {
+      System.out.println("No." + transaction.getId());
+      System.out.println("amount: " + transaction.getAmount());
+      System.out.println("fromAccount: " + transaction.getSender());
+      System.out.println("toAccount: " + transaction.getReceiver());
+      System.out.println("Type: " + transaction.getTransaction_type());
+      System.out.println("depositBalance: " + transaction.getDepositAccountBalance());
+      System.out.println("withdrawBalance: " + transaction.getWithdrawAccountBalance());
+      System.out.println("fullname: " + transaction.getWithdrawAccount().getUser().getFullname());
+      System.out.println("------------------------------");
+    });
+
+    // then
   }
 }
